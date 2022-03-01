@@ -1,31 +1,42 @@
 library(shiny)
+library(shinyjs)
 library(DT)
+
+## Inicialmente leemos el fichero
+pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  shinyjs::useShinyjs(),
   
    # Application title
    titlePanel("INVENTARIO"),
-   # Show a plot of the generated distribution
-   mainPanel(
-     tabsetPanel(
-       tabPanel("Summary",
-          fileInput("file1", "Choose CSV File",
-                    accept = c(
-                      "text/csv",
-                      "text/comma-separated-values,text/plain",
-                      ".csv")
-          )),
-       tabPanel("Table",
-             radioButtons("dist", "Totales:",
-                          c("All" = "none",
-                            "Format" = "forma",
-                            "Edicion" = "edition",
-                            "Year" = "years")),
-                DT::dataTableOutput("mytable")
-                )
+   sidebarLayout(
+     sidebarPanel(
+       radioButtons("dist", "Totales:",
+                    c("Format" = "forma",
+                      "Edicion" = "edition",
+                      "Year" = "years")),
+       DT::dataTableOutput("mytable")
+     ),
+     mainPanel(
+       tabsetPanel(
+         tabPanel("Summary",
+                  fileInput("file1", "Choose CSV File",
+                            accept = c(
+                              "text/csv",
+                              "text/comma-separated-values,text/plain",
+                              ".csv")
+                  )),
+         tabPanel("table",
+                  datatable(
+                    pelis, extensions = c('FixedHeader', 'Buttons'), 
+                    options = list(pageLength = 15, fixedHeader = TRUE, dom = 'Bfrtip', buttons = I('colvis'))
+                  )
+         )
+       )
      )
-   )
+   ),
 )
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -37,14 +48,12 @@ server <- function(input, output) {
        hist(x, breaks = bins, col = 'darkgray', border = 'white')
    })
    
-    output$value <- renderText({ input$caption })
-
 #Uso de la libreria DT para formatear tabla de salida (Paginacion, busqueda, ordenacion)
     
    output$mytable = DT::renderDataTable({
-
+     
      pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
-
+     
      # si no hay datos en el fichero se habilita el control para cargarlo
      if (nrow(pelis) == 0 || is.null(pelis)) {
        file <- input$file1
@@ -62,7 +71,7 @@ server <- function(input, output) {
        })
      }
 
-   dist <- switch(input$dist,
+    dist <- switch(input$dist,
                   forma = {formatos.df <- as.data.frame(table(pelis$Formato))
                   colnames(formatos.df) = c("Formato", "Cantidad")
                   pelis <- formatos.df},
@@ -71,8 +80,8 @@ server <- function(input, output) {
                   pelis <- edicion.df},
                   years = {year.df <- as.data.frame(table(pelis$Year))
                   colnames(year.df) = c("Year", "Cantidad")
-                  pelis <- year.df},
-                  none = pelis)
+                  pelis <- year.df})
+   
    })
 }
 
