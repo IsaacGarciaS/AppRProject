@@ -1,0 +1,14 @@
+name: Inventario
+title: Inventario
+username:
+account: isaacbioinfo
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5742734
+bundleId: 5627189
+url: https://isaacbioinfo.shinyapps.io/Inventario/
+when: 1646096969.92733
+lastSyncTime: 1646096969.92733
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RDataTmp|inventario.csv|inventario_redux.csv|InventarioPeliculas_redux.csv
