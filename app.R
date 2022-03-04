@@ -17,7 +17,8 @@ ui <- fluidPage(
                     c("Format" = "forma",
                       "Edicion" = "edition",
                       "Year" = "years")),
-       DT::dataTableOutput("mytable")
+       DT::dataTableOutput("mytable"),
+       verbatimTextOutput('selected')
      ),
      mainPanel(
        tabsetPanel(
@@ -82,6 +83,14 @@ server <- function(input, output) {
                   colnames(year.df) = c("Year", "Cantidad")
                   pelis <- year.df})
    
+   })
+   
+   output$selected = renderPrint({
+     s = input$mytable_rows_selected
+     if (length(s)) {
+       cat('These rows were selected:\n\n')
+       cat(s, sep = ', ')
+     }
    })
 }
 
