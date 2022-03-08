@@ -17,8 +17,8 @@ ui <- fluidPage(
                     c("Format" = "forma",
                       "Edicion" = "edition",
                       "Year" = "years")),
-       DT::dataTableOutput("mytable"),
-       verbatimTextOutput('selected')
+       DT::dataTableOutput("mytable")
+       #verbatimTextOutput('selected')
      ),
      mainPanel(
        tabsetPanel(
@@ -82,16 +82,45 @@ server <- function(input, output) {
                   years = {year.df <- as.data.frame(table(pelis$Year))
                   colnames(year.df) = c("Year", "Cantidad")
                   pelis <- year.df})
+    
+    #Quitar el multi seleccion
+    #s <- input$mytable_rows_selected
+    
+    # if (length(s)) {
+    #   formatos.df <- as.data.frame(table(pelis$Formato))
+    #   colnames(formatos.df) = c("Formato", "Cantidad")
+    #   formatos <- formatos.df
+    #   
+    #   formatoOK <- as.character(formatos[s, "Formato"])
+    #   
+    #   pelis <- pelis[which(pelis$Formato == formatoOK), ]
+    # }
    
    })
    
-   output$selected = renderPrint({
-     s = input$mytable_rows_selected
-     if (length(s)) {
-       cat('These rows were selected:\n\n')
-       cat(s, sep = ', ')
-     }
-   })
+   # output$selected = renderPrint({
+   # 
+   #   s = input$mytable_rows_selected
+   #   
+   #   if (length(s)) {
+   #     formatos.df <- as.data.frame(table(pelis$Formato))
+   #     colnames(formatos.df) = c("Formato", "Cantidad")
+   #     formatos <- formatos.df
+   #     
+   #     formatoOK <- as.character(formatos[s, "Formato"])
+   #     
+   #     cat('These formats were selected:\n\n')
+   #     cat(formatoOK, sep = ', ')
+   #   }
+   #   
+   #   pelis <- pelis[which(pelis$Formato == formatoOK), ]
+   # })
+   
+   # if (!is.null(formatoOK)) {
+   #   pelis <- pelis[which(pelis$Formato == formatoOK), ]
+   # }
+   
+   
 }
 
 # Run the application 
