@@ -2,9 +2,6 @@ library(shiny)
 library(shinyjs)
 library(DT)
 
-## Inicialmente leemos el fichero
-pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
-
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   shinyjs::useShinyjs(),
@@ -18,109 +15,102 @@ ui <- fluidPage(
                       "Edicion" = "edition",
                       "Year" = "years")),
        DT::dataTableOutput("mytable")
-       #verbatimTextOutput('selected')
      ),
      mainPanel(
        tabsetPanel(
-         tabPanel("Summary",
+         tabPanel("Peliculas",
+                  DT::dataTableOutput("tablePelis")),
+         tabPanel("Carga",
                   fileInput("file1", "Choose CSV File",
                             accept = c(
                               "text/csv",
                               "text/comma-separated-values,text/plain",
                               ".csv")
                   )),
-         tabPanel("table",
-                  datatable(
-                    pelis, extensions = c('FixedHeader', 'Buttons'), 
-                    options = list(pageLength = 15, fixedHeader = TRUE, dom = 'Bfrtip', buttons = I('colvis'))
-                  )
-         )
+         tabPanel("Estadistica", "Graficos")
        )
      )
-   ),
+   )
 )
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-   output$distPlot <- renderPlot({
-       # generate bins based on input$bins from ui.R
-       x    <- faithful[, 2]
-       bins <- seq(min(x), max(x), length.out = input$bins + 1)
-       # draw the histogram with the specified number of bins
-       hist(x, breaks = bins, col = 'darkgray', border = 'white')
-   })
-   
+  
+  filtro <- reactive({
+    pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
+    
+    s = input$mytable_rows_selected
+    
+    if (length(s)) {
+      switch (input$dist,
+              "forma" = {
+                formatos.df <- as.data.frame(table(pelis$Formato))
+                colnames(formatos.df) = c("Formato", "Cantidad")
+                formatos <- formatos.df
+                
+                formatoOK <- as.character(formatos[s, "Formato"])
+                
+                pelisFormato <- pelis[which(pelis$Formato == formatoOK), ]
+                pelis <- pelisFormato
+              },
+              "edition" = {
+                ediciones.df <- as.data.frame(table(pelis$Edicion))
+                colnames(ediciones.df) = c("Edicion", "Cantidad")
+                ediciones <- ediciones.df
+                
+                edicionOK <- as.character(ediciones[s, "Edicion"])
+                
+                pelisEdicion <- pelis[which(pelis$Edicion == edicionOK), ]
+                pelis <- pelisEdicion
+              },
+              "years" = {
+                years.df <- as.data.frame(table(pelis$Year))
+                colnames(years.df) = c("Year", "Cantidad")
+                years <- years.df
+                
+                yearOK <- as.character(years[s, "Year"])
+                
+                pelisYear <- pelis[which(pelis$Year == yearOK), ]
+                pelis <- pelisYear
+              }
+              #{pelis <- pelis[which(pelis$Formato == formatoOK && pelis$Edicion == edicionOK && pelis$Year == yearOK)]}
+              )
+      
+      return(pelis) 
+      
+      #El siguiente paso seria poder filtrar aplicando los filtros a la vez
+      # hacer mas bonito el sitio con imagenes y tal
+      #controlar la carga de fichero (permitir add nuevas pelis, controlar duplicados)
+      #add graficos bonitos
+      #intentar hacer login y control de usuarios
+      
+    }
+    else {
+      pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
+    }
+  })
+  
+  output$tablePelis = DT::renderDataTable({
+    filtro()
+  })
+
 #Uso de la libreria DT para formatear tabla de salida (Paginacion, busqueda, ordenacion)
     
-   output$mytable = DT::renderDataTable({
+   output$mytable = DT::renderDataTable(selection = 'single', {
+     #pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
      
-     pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
-     
-     # si no hay datos en el fichero se habilita el control para cargarlo
-     if (nrow(pelis) == 0 || is.null(pelis)) {
-       file <- input$file1
-       ext <- tools::file_ext(file$datapath)
-       req(file)
-       validate(need(ext == "csv", "Please upload a csv file"))
-
-       pelis <- read.csv(file$datapath, header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
-
-     }else{
-       #deshabilitar inputfile
-
-       observe({
-         shinyjs::disable("file1", length(input$selector) %in% 0:4)
-       })
-     }
-
-    dist <- switch(input$dist,
+     dist <- switch(input$dist,
                   forma = {formatos.df <- as.data.frame(table(pelis$Formato))
                   colnames(formatos.df) = c("Formato", "Cantidad")
                   pelis <- formatos.df},
+                  
                   edition = {edicion.df <- as.data.frame(table(pelis$Edicion))
                   colnames(edicion.df) = c("Edicion", "Cantidad")
                   pelis <- edicion.df},
+                  
                   years = {year.df <- as.data.frame(table(pelis$Year))
                   colnames(year.df) = c("Year", "Cantidad")
                   pelis <- year.df})
-    
-    #Quitar el multi seleccion
-    #s <- input$mytable_rows_selected
-    
-    # if (length(s)) {
-    #   formatos.df <- as.data.frame(table(pelis$Formato))
-    #   colnames(formatos.df) = c("Formato", "Cantidad")
-    #   formatos <- formatos.df
-    #   
-    #   formatoOK <- as.character(formatos[s, "Formato"])
-    #   
-    #   pelis <- pelis[which(pelis$Formato == formatoOK), ]
-    # }
-   
    })
-   
-   # output$selected = renderPrint({
-   # 
-   #   s = input$mytable_rows_selected
-   #   
-   #   if (length(s)) {
-   #     formatos.df <- as.data.frame(table(pelis$Formato))
-   #     colnames(formatos.df) = c("Formato", "Cantidad")
-   #     formatos <- formatos.df
-   #     
-   #     formatoOK <- as.character(formatos[s, "Formato"])
-   #     
-   #     cat('These formats were selected:\n\n')
-   #     cat(formatoOK, sep = ', ')
-   #   }
-   #   
-   #   pelis <- pelis[which(pelis$Formato == formatoOK), ]
-   # })
-   
-   # if (!is.null(formatoOK)) {
-   #   pelis <- pelis[which(pelis$Formato == formatoOK), ]
-   # }
-   
-   
 }
 
 # Run the application 
