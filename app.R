@@ -26,7 +26,8 @@ ui <- fluidPage(
                               "text/csv",
                               "text/comma-separated-values,text/plain",
                               ".csv")
-                  )),
+                  ),
+                  verbatimTextOutput("carga")),
          tabPanel("Estadistica", "Graficos")
        )
      )
@@ -72,7 +73,6 @@ server <- function(input, output) {
                 pelisYear <- pelis[which(pelis$Year == yearOK), ]
                 pelis <- pelisYear
               }
-              #{pelis <- pelis[which(pelis$Formato == formatoOK && pelis$Edicion == edicionOK && pelis$Year == yearOK)]}
               )
       
       return(pelis) 
@@ -89,6 +89,42 @@ server <- function(input, output) {
     }
   })
   
+  cargafichero <- reactive({
+    
+    file <- input$file1
+    ext <- tools::file_ext(file$datapath)
+    req(file)
+    validate(need(ext == "csv", "Please upload a csv file"))
+    
+    csvLectura <- read.csv(file$datapath, header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
+    
+    if(ncol(csvLectura) < 5 || ncol(csvLectura) > 9) {
+      cat("Debe haber minimo 5 columnas y maximo 9")
+    }else{
+      cat("Todo ok")
+    }
+    
+    
+    for(i in names(csvLectura)){ 
+      cat(i)
+      switch (i,
+              Titulo = {print("ok")},
+              Formato = {print("ok")},
+              Edicion = {print("ok")},
+              discos = {print("ok")},
+              Director = {print("ok")},
+              Year = {print("ok")},
+              Genero = {print("ok")},
+              Observaciones = {print("ok")},
+              Localizacion = {print("ok")},
+              {flagColumnOK <- FALSE
+              
+              }
+      )
+      #add the operation to be applied here
+    }
+  })
+  
   output$tablePelis = DT::renderDataTable({
     filtro()
   })
@@ -96,7 +132,7 @@ server <- function(input, output) {
 #Uso de la libreria DT para formatear tabla de salida (Paginacion, busqueda, ordenacion)
     
    output$mytable = DT::renderDataTable(selection = 'single', {
-     #pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
+     pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
      
      dist <- switch(input$dist,
                   forma = {formatos.df <- as.data.frame(table(pelis$Formato))
@@ -110,6 +146,12 @@ server <- function(input, output) {
                   years = {year.df <- as.data.frame(table(pelis$Year))
                   colnames(year.df) = c("Year", "Cantidad")
                   pelis <- year.df})
+
+   })
+   
+   output$carga = renderPrint({
+     cargafichero()
+
    })
 }
 
