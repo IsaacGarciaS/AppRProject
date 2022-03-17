@@ -5,10 +5,10 @@ account: isaacbioinfo
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5742734
-bundleId: 5642418
+bundleId: 5696094
 url: https://isaacbioinfo.shinyapps.io/Inventario/
-when: 1646405378.08726
-lastSyncTime: 1646405378.08726
+when: 1647535827.05554
+lastSyncTime: 1647535827.05554
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RDataTmp|app _old.R|inventario.csv|inventario_redux.csv|InventarioPeliculas_redux.csv
+ignoredFiles: .RDataTmp|app _old.R|inventario.csv|inventario_redux.csv|InventarioPeliculas_redux.csv|InventarioPeliculastestColumnas.csv

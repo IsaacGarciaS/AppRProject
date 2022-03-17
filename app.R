@@ -11,34 +11,39 @@ ui <- fluidPage(
   
    # Application title
    titlePanel("INVENTARIO"),
-   sidebarLayout(
-     sidebarPanel(
-       DT::dataTableOutput("formato"),
-       DT::dataTableOutput("edicion"),
-       DT::dataTableOutput("year")
-     ),
-     mainPanel(
-       tabsetPanel(
-         tabPanel("Peliculas",
-                  DT::dataTableOutput("tablePelis")),
-         tabPanel("Carga",
-                  fileInput("file1", "Choose CSV File",
-                            accept = c(
-                              "text/csv",
-                              "text/comma-separated-values,text/plain",
-                              ".csv")
-                  ),
-                  verbatimTextOutput("carga")),
-         tabPanel("Estadistica", "Graficos",
-                  radioButtons("dist", "Totales:",
-                               c("Format" = "forma",
-                                 "Edicion" = "edition",
-                                 "Year" = "years")),
-                  DT::dataTableOutput("mytable"),
-                  plotOutput("estadistica"))
+  #add una div, en lugar del mainPanel para que se ajuste a todo lo ancho
+       div(
+         tabsetPanel(
+           tabPanel("Peliculas",
+                    sidebarLayout(
+                      sidebarPanel (
+                        DT::dataTableOutput("formato"),
+                        DT::dataTableOutput("edicion"),
+                        DT::dataTableOutput("year")
+                      )
+                      ,
+                      mainPanel(
+                            DT::dataTableOutput(outputId = "tablePelis")
+                      )
+                    )
+           ),
+           tabPanel("Carga",
+                    fileInput("file1", "Choose CSV File",
+                              accept = c(
+                                "text/csv",
+                                "text/comma-separated-values,text/plain",
+                                ".csv")
+                    ),
+                    verbatimTextOutput("carga")),
+           tabPanel("Estadistica", "Graficos",
+                    radioButtons("dist", "Totales:",
+                                 c("Format" = "forma",
+                                   "Edicion" = "edition",
+                                   "Year" = "years")),
+                    DT::dataTableOutput("mytable"),
+                    plotOutput("estadistica"))
+         ), class = "span7"
        )
-     )
-   )
 )
 # Define server logic required to draw a histogram
 server <- function(input, output) {
