@@ -204,15 +204,59 @@ server <- function(input, output) {
    
    output$estadistica <- renderPlot({
      s = input$mytable_rows_selected
-     
-     formatos.df <- as.data.frame(table(leerpelis()$Formato))
-     colnames(formatos.df) = c("Formato", "Cantidad")
-     formatos <- formatos.df
-     
-     if (length(s)){
-       plot(formatos[s, , drop = FALSE])
-       formatos[]
-     } 
+
+     switch (input$dist,
+             "forma" = {
+               if (length(s)){
+                 formatos.df <- as.data.frame(table(leerpelis()$Formato))
+                 colnames(formatos.df) = c("Formato", "Cantidad")
+                 formatos <- formatos.df
+                 
+                 data <- data.frame(
+                   formato=formatos$Formato ,  
+                   cantidad=formatos$Cantidad)
+                 
+                 ggplot(data[s, , drop = FALSE], aes(x=formato, y=cantidad, fill = formato)) + 
+                   geom_bar(stat='identity') +
+                   scale_fill_hue(c = 40) +
+                   theme(legend.position="none")
+               } 
+             },
+             "edition" = {
+               if (length(s)){
+                 ediciones.df <- as.data.frame(table(leerpelis()$Edicion))
+                 colnames(ediciones.df) = c("Edicion", "Cantidad")
+                 ediciones <- ediciones.df
+                 
+                 data <- data.frame(
+                   edicion=ediciones$Edicion ,  
+                   cantidad=ediciones$Cantidad)
+                 
+                 ggplot(data[s, , drop = FALSE], aes(x=edicion, y=cantidad, fill = edicion)) + 
+                   geom_bar(stat='identity') +
+                   scale_fill_hue(c = 40) +
+                   theme(legend.position="none")
+
+               } 
+             },
+             "years" = {
+               if (length(s)){
+                 years.df <- as.data.frame(table(leerpelis()$Year))
+                 colnames(years.df) = c("Year", "Cantidad")
+                 years <- years.df
+                 
+                 data <- data.frame(
+                   year=years$Year ,  
+                   cantidad=years$Cantidad)
+                 
+                 ggplot(data[s, , drop = FALSE], aes(x=year, y=cantidad, fill = year)) + 
+                   geom_bar(stat='identity') +
+                   scale_fill_hue(c = 80) +
+                   theme(legend.position="none")
+                 
+               } 
+             }
+        )
    })
 }
 
