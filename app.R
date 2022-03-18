@@ -6,7 +6,7 @@ library(ggplot2)
 
 
 ui <- fluidPage(
-  #theme = bs_theme(version = 4, bootswatch = "darkly"),
+  theme = bs_theme(version = 4, bootswatch = "superhero"),
   shinyjs::useShinyjs(),
   
   #add div, en lugar del mainPanel para que se ajuste a todo lo ancho
@@ -35,7 +35,8 @@ ui <- fluidPage(
                     ),
                     verbatimTextOutput("carga"),
                     DT::dataTableOutput("tablepeliscargadas"),
-                    actionButton("btn", "Cargar")),
+                    actionButton("btn", "Cargar", icon("fa-solid fa-upload"), 
+                                 style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
                     
            tabPanel("Estadistica", "Graficos",
                     radioButtons("dist", "Totales:",
@@ -48,7 +49,7 @@ ui <- fluidPage(
        )
 )
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
   shinyjs::hide("btn")
   
   #se crea function para no duplicar codigo
@@ -73,6 +74,9 @@ server <- function(input, output) {
   #Para ello debe hacer write en el fichero csv
   
   observeEvent(input$btn, {
+    
+    pelis <- leerpelis()
+    
     cat("\n\n* Saving table in directory: ", getwd())
     file_name <- 'InventarioPeliculas.csv'
     
@@ -81,15 +85,17 @@ server <- function(input, output) {
     
     #Add al fichero inicial las nuevas peliculas cargadas
     if(file.exists(file_name)){
+      
       write.table(datosTable, file = file_name, sep = ";", row.names = FALSE, col.names = FALSE, 
                   fileEncoding = "latin1", append = TRUE, na = "", quote = FALSE, eol = "\r\n")
       shinyjs::hide("btn")
       print("Carga correcta")
+      
+      updateNavbarPage(session, "ScoreDevApp", selected = "Peliculas")
     }
   })
   
   #hacer mas bonito el sitio con imagenes y tal
-  #controlar la carga de fichero (controlar duplicados)
   #intentar hacer login y control de usuarios
   
 
@@ -190,7 +196,35 @@ server <- function(input, output) {
         #add the operation to be applied here
       }
     }else{
-      cat("Todo ok")
+      #comprobamos duplicados en el titulo
+      
+      duplicados <- FALSE
+      
+      #creamos datafreame vacio para guardar los titulos repetidos
+      repes <- data.frame(Titulo=character()) 
+      
+      for (row in 1:nrow(leerpelis())) {
+        titulosExistentes <- leerpelis()[row, "Titulo"]
+        
+        for (newrow in 1:nrow(csvLectura)) {
+          nuevoTitulo <- csvLectura[newrow, "Titulo"]
+          
+          if(titulosExistentes == nuevoTitulo) {
+            duplicados <- TRUE
+            repes[nrow(repes) + 1, ] = nuevoTitulo
+          }
+        }
+      }
+      
+      if(!duplicados){
+        cat("Todo ok")
+      }else{
+        #si hay duplicados no permitimos hacer la carga y los mostramos
+        shinyjs::hide("btn")
+        cat("Titulos repetidos: ")
+        names(repes) <- NULL #quitamos header
+        repes
+      } 
     }
   })
   
