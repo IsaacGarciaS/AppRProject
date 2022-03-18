@@ -91,7 +91,7 @@ server <- function(input, output, session) {
       shinyjs::hide("btn")
       print("Carga correcta")
       
-      updateNavbarPage(session, "ScoreDevApp", selected = "Peliculas")
+      #updateNavbarPage(session, "ScoreDevApp", selected = "Peliculas")
     }
   })
   
