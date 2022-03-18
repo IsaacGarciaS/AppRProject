@@ -10,43 +10,43 @@ ui <- fluidPage(
   shinyjs::useShinyjs(),
   
   #add div, en lugar del mainPanel para que se ajuste a todo lo ancho
-       div(
-         tabsetPanel(
-           tabPanel("Home", titlePanel("INVENTARIO")),
-           tabPanel("Peliculas",
-                    sidebarLayout(
-                      sidebarPanel (
-                        DT::dataTableOutput("formato"),
-                        DT::dataTableOutput("edicion"),
-                        DT::dataTableOutput("year")
-                      )
-                      ,
-                      mainPanel(
-                            DT::dataTableOutput("tablePelis")
-                      )
+     div(
+       tabsetPanel(id = "generalPanel",
+         tabPanel("Home", titlePanel("INVENTARIO")),
+         tabPanel("Peliculas",
+                  sidebarLayout(
+                    sidebarPanel (
+                      DT::dataTableOutput("formato"),
+                      DT::dataTableOutput("edicion"),
+                      DT::dataTableOutput("year")
                     )
-           ),
-           tabPanel("Carga",
-                    fileInput("file1", "Choose CSV File",
-                              accept = c(
-                                "text/csv",
-                                "text/comma-separated-values,text/plain",
-                                ".csv")
-                    ),
-                    verbatimTextOutput("carga"),
-                    DT::dataTableOutput("tablepeliscargadas"),
-                    actionButton("btn", "Cargar", icon("fa-solid fa-upload"), 
-                                 style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
-                    
-           tabPanel("Estadistica", "Graficos",
-                    radioButtons("dist", "Totales:",
-                                 c("Format" = "forma",
-                                   "Edicion" = "edition",
-                                   "Year" = "years")),
-                    DT::dataTableOutput("mytable"),
-                    plotOutput("estadistica"))
-         ), class = "span7"
-       )
+                    ,
+                    mainPanel(
+                          DT::dataTableOutput("tablePelis")
+                    )
+                  )
+         ),
+         tabPanel("Carga",
+                  fileInput("file1", "Choose CSV File",
+                            accept = c(
+                              "text/csv",
+                              "text/comma-separated-values,text/plain",
+                              ".csv")
+                  ),
+                  verbatimTextOutput("carga"),
+                  DT::dataTableOutput("tablepeliscargadas"),
+                  actionButton("btn", "Cargar", icon("fa-solid fa-upload"), 
+                               style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
+                  
+         tabPanel("Estadistica", "Graficos",
+                  radioButtons("dist", "Totales:",
+                               c("Format" = "forma",
+                                 "Edicion" = "edition",
+                                 "Year" = "years")),
+                  DT::dataTableOutput("mytable"),
+                  plotOutput("estadistica"))
+       ), class = "span7"
+     )
 )
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -54,6 +54,9 @@ server <- function(input, output, session) {
   
   #se crea function para no duplicar codigo
   file_upload <- function(){
+    #shinyjs::show("tablepeliscargadas")
+    #shinyjs::show("carga")
+    
     file <- input$file1
     ext <- tools::file_ext(file$datapath)
     req(file)
@@ -89,11 +92,18 @@ server <- function(input, output, session) {
       write.table(datosTable, file = file_name, sep = ";", row.names = FALSE, col.names = FALSE, 
                   fileEncoding = "latin1", append = TRUE, na = "", quote = FALSE, eol = "\r\n")
       shinyjs::hide("btn")
-      print("Carga correcta")
+      #shinyjs::hide("tablepeliscargadas")
+      #shinyjs::hide("carga")
       
-      #updateNavbarPage(session, "ScoreDevApp", selected = "Peliculas")
+      pelis <- leerpelis()
+      
+      # tra finalizar la carga volvemos al tap de las peliculas
+      updateTabsetPanel(session, "generalPanel", selected = "Peliculas")
+      
+      
     }
   })
+  
   
   #hacer mas bonito el sitio con imagenes y tal
   #intentar hacer login y control de usuarios
