@@ -50,6 +50,8 @@ ui <- fluidPage(
 )
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+  updateTabsetPanel(session, "generalPanel", selected = "Peliculas")
+  
   shinyjs::hide("btn")
   
   #se crea function para no duplicar codigo
@@ -92,15 +94,10 @@ server <- function(input, output, session) {
       write.table(datosTable, file = file_name, sep = ";", row.names = FALSE, col.names = FALSE, 
                   fileEncoding = "latin1", append = TRUE, na = "", quote = FALSE, eol = "\r\n")
       shinyjs::hide("btn")
-      #shinyjs::hide("tablepeliscargadas")
-      #shinyjs::hide("carga")
       
-      pelis <- leerpelis()
+      # tras finalizar la carga volvemos al tap de las peliculas (seria interesante poder recargarla)
       
-      # tra finalizar la carga volvemos al tap de las peliculas
-      updateTabsetPanel(session, "generalPanel", selected = "Peliculas")
-      
-      
+      refresh()
     }
   })
   
