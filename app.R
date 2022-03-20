@@ -9,6 +9,7 @@ library(slickR)
 ui <- fluidPage(
   theme = bs_theme(version = 4, bootswatch = "superhero"),
   shinyjs::useShinyjs(),
+  title = "INVENTARIO",
   
   #add div, en lugar del mainPanel para que se ajuste a todo lo ancho
      div(
