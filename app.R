@@ -13,7 +13,7 @@ ui <- fluidPage(
      div(
        tabsetPanel(id = "generalPanel",
          tabPanel("Home", titlePanel("INVENTARIO")),
-         tabPanel("Peliculas",
+         tabPanel("Peliculas", "Filtros:",
                   sidebarLayout(
                     sidebarPanel (
                       DT::dataTableOutput("formato"),
@@ -22,7 +22,29 @@ ui <- fluidPage(
                     )
                     ,
                     mainPanel(
-                          DT::dataTableOutput("tablePelis")
+                      fluidRow(
+                        column(6, 
+                               img(src = "Blu-Ray.png", height = 100, width = 200)
+                        ),
+                        column(6,
+                               div(
+                                 img(src = "DVD.png", height = 100, width = 200), style="text-align: right;"
+                               )
+                               
+                        )
+                      ),
+                      DT::dataTableOutput("tablePelis"),
+                      fluidRow(
+                        column(6, 
+                                img(src = "00-Twenty-Century-Fox.jpg", height = 180, width = 200)
+                        ),
+                        column(6,
+                               div(
+                                 img(src = "Logo_new_web.png", height = 160, width = 400), style="text-align: right;"
+                               )
+                               
+                        )
+                      )
                     )
                   )
          ),
@@ -38,7 +60,7 @@ ui <- fluidPage(
                   actionButton("btn", "Cargar", icon("fa-solid fa-upload"), 
                                style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
                   
-         tabPanel("Estadistica", "Graficos",
+         tabPanel("Estadistica",
                   radioButtons("dist", "Totales:",
                                c("Format" = "forma",
                                  "Edicion" = "edition",
