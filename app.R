@@ -3,6 +3,7 @@ library(shinyjs)
 library(DT)
 library(bslib)
 library(ggplot2)
+library(slickR)
 
 
 ui <- fluidPage(
@@ -11,8 +12,11 @@ ui <- fluidPage(
   
   #add div, en lugar del mainPanel para que se ajuste a todo lo ancho
      div(
+       slickROutput("slick_output",width='100%',height='50%'),
        tabsetPanel(id = "generalPanel",
-         tabPanel("Home", titlePanel("INVENTARIO")),
+         # tabPanel("Home", titlePanel("INVENTARIO"),
+         #          
+         #          ),
          tabPanel("Peliculas", "Filtros:",
                   sidebarLayout(
                     sidebarPanel (
@@ -40,7 +44,7 @@ ui <- fluidPage(
                         ),
                         column(6,
                                div(
-                                 img(src = "Logo_new_web.png", height = 160, width = 400), style="text-align: right;"
+                                 img(src = "Logo_new_web.png", height = 160, width = 450), style="text-align: right;"
                                )
                                
                         )
@@ -60,8 +64,8 @@ ui <- fluidPage(
                   actionButton("btn", "Cargar", icon("fa-solid fa-upload"), 
                                style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
                   
-         tabPanel("Estadistica",
-                  radioButtons("dist", "Totales:",
+         tabPanel("Estadistica", "Select items to see in graphic:",
+                  radioButtons("dist", "",
                                c("Format" = "forma",
                                  "Edicion" = "edition",
                                  "Year" = "years")),
@@ -123,10 +127,7 @@ server <- function(input, output, session) {
     }
   })
   
-  
-  #hacer mas bonito el sitio con imagenes y tal
-  #intentar hacer login y control de usuarios
-  
+  #pendiente: intentar hacer login y control de usuarios
 
 # Reactives ---------------------------------------------------------------
 
@@ -386,6 +387,24 @@ server <- function(input, output, session) {
              }
         )
    })
+  
+  imgs_links <- list(
+    "colectionBlu-ray.png",
+    "colectionDVD.png")
+  
+  # renderSlickR (We create the slickR objects here)
+  
+  output$slick_output <- renderSlickR({
+    
+    photo_list <- lapply(imgs_links, function(x){
+      tags$div(
+        tags$img(src = x, width = "10%", height = "10%")
+      )
+    })
+    
+    imgs <- do.call(tagList, photo_list)
+    slickR(imgs)
+  })
 
 # Fin Outputs -------------------------------------------------------------
 }
