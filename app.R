@@ -109,7 +109,6 @@ server <- function(input, output, session) {
     
     pelis <- leerpelis()
     
-    cat("\n\n* Saving table in directory: ", getwd())
     file_name <- 'InventarioPeliculas.csv'
     
     #llegados hasta aqui ya se han hecho las validaciones previas de los datos cargados
@@ -119,17 +118,14 @@ server <- function(input, output, session) {
     if(file.exists(file_name)){
       
       write.table(datosTable, file = file_name, sep = ";", row.names = FALSE, col.names = FALSE, 
-                  fileEncoding = "latin1", append = TRUE, na = "", quote = FALSE, eol = "\r\n")
+                  fileEncoding = "latin1", append = TRUE, na = "", quote = FALSE, eol = "\r")
       shinyjs::hide("btn")
       
-      # tras finalizar la carga volvemos al tap de las peliculas (seria interesante poder recargarla)
-      
+      # tras finalizar la carga volvemos al tap de las peliculas (recargar pagina)
       refresh()
     }
   })
   
-  #pendiente: intentar hacer login y control de usuarios
-
 # Reactives ---------------------------------------------------------------
 
   leerpelis <- reactive({
@@ -392,8 +388,6 @@ server <- function(input, output, session) {
   imgs_links <- list(
     "colectionBlu-ray.png",
     "colectionDVD.png")
-  
-  # renderSlickR (We create the slickR objects here)
   
   output$slick_output <- renderSlickR({
     
