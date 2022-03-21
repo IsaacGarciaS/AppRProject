@@ -11,7 +11,7 @@ ui <- fluidPage(
   shinyjs::useShinyjs(),
   title = "INVENTARIO",
   
-  #add div, en lugar del mainPanel para que se ajuste a todo lo ancho
+  #añadimos div, en lugar del mainPanel para que se ajuste a todo lo ancho
      div(
        slickROutput("slick_output",width='100%',height='50%'),
        tabsetPanel(id = "generalPanel",
@@ -65,15 +65,17 @@ ui <- fluidPage(
                   actionButton("btn", "Cargar", icon("fa-solid fa-upload"), 
                                style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
                   
-         tabPanel("Estadistica", "Select items to see in graphic:",
+         tabPanel("Estadística", "Select items to see in graphic:",
                   radioButtons("dist", "",
-                               c("Format" = "forma",
-                                 "Edicion" = "edition",
-                                 "Year" = "years")),
+                               c("Formato" = "forma",
+                                 "Edición" = "edition",
+                                 "Año" = "years")),
                   DT::dataTableOutput("mytable"),
                   plotOutput("estadistica"))
        ), class = "span7"
-     )
+     ),
+  div(print("IsaacGarcíaProductions© 2022"), style="text-align: right;")
+  
 )
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -102,7 +104,7 @@ server <- function(input, output, session) {
   }
   
   
-  #Una vez esta el fichero cargado, y se muestra en pantalla la tabla con los datos. El boton cargar debe cargar esos datos
+  #Una vez está el fichero cargado, y se muestra en pantalla la tabla con los datos. El boton cargar debe cargar esos datos
   #Para ello debe hacer write en el fichero csv
   
   observeEvent(input$btn, {
@@ -138,7 +140,7 @@ server <- function(input, output, session) {
     
     pelis <- read.csv("InventarioPeliculas.csv", header = TRUE, sep = ";", dec = ".", stringsAsFactors=FALSE, fileEncoding="latin1")
     
-    #guardamos la seleccion de cada tabla
+    #guardamos la selección de cada tabla
     seleccionformato = input$formato_rows_selected
     seleccionedicion = input$edicion_rows_selected
     seleccionyear = input$year_rows_selected
@@ -147,7 +149,7 @@ server <- function(input, output, session) {
     if (length(seleccionformato) | length(seleccionedicion) | length(seleccionyear)) {
       #si hay alguno marcado, hay que ir aplicando los filtros al total de pelis
       
-      #Obtenemos seleccion
+      #Obtenemos selección
       formatos.df <- as.data.frame(table(pelis$Formato))
       colnames(formatos.df) = c("Formato", "Cantidad")
       formatos <- formatos.df
