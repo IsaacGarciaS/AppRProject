@@ -80,6 +80,7 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
   updateTabsetPanel(session, "generalPanel", selected = "Peliculas")
+  cargar <<- FALSE #variable Global. will be visible in every user session
   
   shinyjs::hide("btn")
   
@@ -116,15 +117,17 @@ server <- function(input, output, session) {
     #llegados hasta aqui ya se han hecho las validaciones previas de los datos cargados
     datosTable <- datosCargados();
     
-    #Add al fichero inicial las nuevas peliculas cargadas
-    if(file.exists(file_name)){
-      
-      write.table(datosTable, file = file_name, sep = ";", row.names = FALSE, col.names = FALSE, 
-                  fileEncoding = "latin1", append = TRUE, na = "", quote = FALSE, eol = "\r")
-      shinyjs::hide("btn")
-      
-      # tras finalizar la carga volvemos al tap de las peliculas (recargar pagina)
-      refresh()
+    if(cargar){
+      #Add al fichero inicial las nuevas peliculas cargadas
+      if(file.exists(file_name)){
+        
+        write.table(datosTable, file = file_name, sep = ";", row.names = FALSE, col.names = FALSE, 
+                    fileEncoding = "latin1", append = TRUE, na = "", quote = FALSE, eol = "\r")
+        shinyjs::hide("btn")
+        
+        # tras finalizar la carga volvemos al tap de las peliculas (recargar pagina)
+        refresh()
+      }
     }
   })
   
@@ -197,8 +200,8 @@ server <- function(input, output, session) {
     return(pelis)
   })
   
-  validacioncargafichero <- reactive({
-    #se crea un reactivo muy similar a cargarPelis pero jugando con lo que se hace en cada uno y sobretodo con el return
+  validacioncargafichero <- function(){
+    #se crea una función para validar y mostrar los datos en Verbatim
     #en este caso se hace validacion y se muestran los mensajes al usuario
 
     csvLectura <- file_upload()
@@ -246,16 +249,18 @@ server <- function(input, output, session) {
       }
       
       if(!duplicados){
+        cargar <<- TRUE
         cat("Todo ok")
       }else{
         #si hay duplicados no permitimos hacer la carga y los mostramos
         shinyjs::hide("btn")
         cat("Titulos repetidos: ")
         names(repes) <- NULL #quitamos header
+        cargar <<- FALSE
         repes
       } 
     }
-  })
+  }
   
   cargarPelis <- reactive({
     #en este caso si hay errores vaciamos dataframe, el otro reactivo se encarga de mostras los mensajes
